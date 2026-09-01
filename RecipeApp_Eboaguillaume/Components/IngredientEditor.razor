@@ -1,0 +1,38 @@
+﻿@using RecipeApp_Eboaguillaume.Models
+
+<!-- Composant pour éditer une seule ligne d'ingrédient dans une recette. -->
+<RadzenStack Gap="10px" AlignItems="AlignItems.Start">
+    <!-- Conteneur pour les champs d'édition d'une ligne d'ingrédient -->
+    <div class="flex gap-2 items-center">
+        <!-- Champ de texte pour le nom de l'ingrédient -->
+        <RadzenTextBox @bind-Value="Line.Name" Placeholder="Ingredient" Style="width: 240px" />
+        <!-- Champ numérique pour la quantité de l'ingrédient -->
+        <RadzenNumeric @bind-Value="Line.Qty.Amount" Min="0" Max="10000" Style="width: 120px" />
+        <!-- Liste déroulante pour l'unité de mesure de l'ingrédient -->
+        <RadzenDropDown @bind-Value="Line.Qty.Unit" Data="Enum.GetValues<Unit>()" Style="width: 160px" />
+        <!-- Champ de texte pour les notes additionnelles sur l'ingrédient -->
+        <RadzenTextBox @bind-Value="Line.Notes" Placeholder="Notes" Style="width: 200px" />
+        <!-- Bouton pour supprimer cette ligne d'ingrédient -->
+        <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="RemoveRequested" />
+    </div>
+</RadzenStack>
+
+@code {
+    /// <summary>
+    /// L'objet IngredientLine à éditer par ce composant.
+    /// C'est un paramètre obligatoire passé par le parent.
+    /// </summary>
+    [Parameter] public IngredientLine Line { get; set; } = new();
+
+    /// <summary>
+    /// Callback d'événement déclenché lorsque l'utilisateur demande la suppression de cette ligne d'ingrédient.
+    /// Le composant parent doit s'abonner à cet événement pour gérer la suppression.
+    /// </summary>
+    [Parameter] public EventCallback OnRemove { get; set; }
+
+    /// <summary>
+    /// Méthode interne qui invoque le callback OnRemove lorsque le bouton de suppression est cliqué.
+    /// </summary>
+    /// <returns>Une tâche asynchrone.</returns>
+    Task RemoveRequested() => OnRemove.InvokeAsync();
+}

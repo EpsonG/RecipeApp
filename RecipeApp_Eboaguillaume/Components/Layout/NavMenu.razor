@@ -1,0 +1,22 @@
+﻿<!-- Barre de navigation supérieure -->
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <!-- Marque ou titre de l'application -->
+        <a class="navbar-brand" href="">RecipoFast</a>
+    </div>
+</div>
+
+<!-- Bouton bascule pour le menu de navigation (pour les petits écrans) -->
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<!-- Conteneur des liens de navigation, cliquable pour fermer le menu sur mobile -->
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="nav flex-column">
+        <!-- Élément de navigation : lien vers la page d'accueil -->
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+    </nav>
+</div>

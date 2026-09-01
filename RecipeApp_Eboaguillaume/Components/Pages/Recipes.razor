@@ -1,0 +1,143 @@
+﻿@page "/recipes"
+@inject RecipeApp_Eboaguillaume.Services.IRecipeService RecipeService
+@using RecipeApp_Eboaguillaume.Models
+@inject NavigationManager Navigation
+@inject Radzen.NotificationService Notify
+
+<PageTitle>Recipes</PageTitle>
+
+<RadzenCard>
+    <RadzenNotification />
+
+    <div class="rz-border-b-1 rz-border-base-300 flex justify-between items-center mb-4 pb-2">
+        
+        <div class="flex gap-1">
+        
+            <h3 class="text-lg font-semibold m-0">Recipes</h3>
+            <RadzenButton Icon="add" Text="New"
+                          ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Medium"
+                          Click="@(() => Navigation.NavigateTo("/recipes/new"))" />
+
+            <RadzenButton Icon="refresh" Text="Reload"
+                          ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Medium"
+                          Click="@(() => Reload(showNotification: true))" />
+            
+            <RadzenButton Text="Custom Purple" class="my-purple my-round" Icon="favorite" 
+                          Size="ButtonSize.Medium" />
+            
+            @* <RadzenTextBox Placeholder="Search recipes..." @oninput="OnSearch" Style="width: 250px;" /> *@
+        
+        </div>
+        
+    </div>
+
+    <RadzenDataGrid Data="@filteredRecipes" TItem="Recipe"
+                    AllowPaging="true" PageSize="10"
+                    RowDoubleClick="@(args => View(args.Data))">
+        <Columns>
+            <RadzenDataGridColumn TItem="Recipe" Property="Title" Title="Title" Width="120px"  />
+            <RadzenDataGridColumn TItem="Recipe" Property="Description" Title="Description" Width="120px" />
+            <RadzenDataGridColumn TItem="Recipe" Property="Servings" Title="Servings" Width="120px" />
+            <RadzenDataGridColumn TItem="Recipe" Title="Actions" Context="r" Width="200px" Sortable="false" Filterable="false" TextAlign="TextAlign.Center">
+                <Template Context="r">
+                    <RadzenButton Icon="visibility" Text="View" ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Small"
+                                  Click="@(() => View(r))" />
+                    <RadzenButton Icon="edit" Text="Edit" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small"
+                                  class="ml-2" Click="@(() => Edit(r))" />
+                    <RadzenButton Icon="delete" Text="Delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small"
+                                  class="ml-2" Click="@(() => Delete(r))" />
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</RadzenCard>
+
+@code {
+    List<Recipe> allRecipes = new();
+    IEnumerable<Recipe> filteredRecipes = new List<Recipe>();
+    string searchTerm = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        Reload(showNotification: false); // Pas de notification "Loaded" au démarrage
+    }
+
+    void Reload(bool showNotification = true)
+    {
+        allRecipes = RecipeService.GetAll();
+        ApplyFilter();
+
+        if (showNotification)
+        {
+            // Notification Info pour Reload
+            Notify.Notify(new Radzen.NotificationMessage
+            {
+                Severity = Radzen.NotificationSeverity.Success,
+                Summary = "Reloaded",
+                Detail = $"{allRecipes.Count} recipe(s) loaded.",
+                Duration = 3000
+            });
+        }
+    }
+
+    void OnSearch(ChangeEventArgs args)
+    {
+        searchTerm = args.Value?.ToString() ?? string.Empty;
+        ApplyFilter();
+    }
+
+    void ApplyFilter()
+    {
+        filteredRecipes = string.IsNullOrWhiteSpace(searchTerm)
+            ? allRecipes
+            : allRecipes.Where(r => r.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+                                 || (r.Description != null && r.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)));
+    }
+
+    void View(Recipe r) => Navigation.NavigateTo($"/recipes/{r.Id}");
+
+    void Edit(Recipe r) => Navigation.NavigateTo($"/recipes/edit/{r.Id}");
+
+    void Delete(Recipe r)
+    {
+        var ok = RecipeService.Delete(r.Id);
+        if (ok)
+        {
+            Reload(showNotification: false);
+            // Notification Success pour Delete
+            Notify.Notify(new Radzen.NotificationMessage
+            {
+                Severity = Radzen.NotificationSeverity.Success,
+                Summary = "Success",
+                Detail = $"{r.Title} removed.",
+                Duration = 3000
+            });
+        }
+        else
+        {
+            // Notification Warning pour non trouvé
+            Notify.Notify(new Radzen.NotificationMessage
+            {
+                Severity = Radzen.NotificationSeverity.Warning,
+                Summary = "Warning",
+                Detail = "Could not delete the recipe.",
+                Duration = 3000
+            });
+        }
+    }
+
+    // Exemple SaveRecipe pour ajout
+    void SaveRecipe(Recipe newRecipe)
+    {
+        RecipeService.Add(newRecipe);
+
+        // Notification Success pour ajout
+        Notify.Notify(new Radzen.NotificationMessage
+        {
+            Severity = Radzen.NotificationSeverity.Success,
+            Summary = "Success",
+            Detail = $"{newRecipe.Title} added.",
+            Duration = 3000
+        });
+    }
+}

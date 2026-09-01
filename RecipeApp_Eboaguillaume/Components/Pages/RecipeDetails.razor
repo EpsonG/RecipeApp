@@ -1,0 +1,94 @@
+﻿@page "/recipes/{Id:int}"
+@inject RecipeApp_Eboaguillaume.Services.IRecipeService RecipeService
+@inject RecipeApp_Eboaguillaume.Services.MySqlRequestService MySqlRequestService
+@inject NavigationManager Navigation
+
+<PageTitle>@recipe?.Title</PageTitle>
+
+@if (recipe == null)
+{
+    <RadzenAlert Severity="AlertSeverity.Warning" Summary="Not Found" Detail="Sorry, recipe not found." />
+}
+else
+{
+    <RadzenCard>
+        <RadzenNotification />
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-2xl font-bold">@recipe.Title</h1>
+                <p class="text-muted">@recipe.Description</p>
+            </div>
+            <div class="flex gap-2">
+                <RadzenButton Icon="edit" Text="Edit" ButtonStyle="ButtonStyle.Primary" Click="@(() => Edit(recipe.Id))" />
+                <RadzenButton Icon="content_copy" Text="Duplicate" ButtonStyle="ButtonStyle.Secondary" Click="@(() => Duplicate(recipe))" />
+                <RadzenButton Icon="favorite" Text="Je veux cette recette" ButtonStyle="ButtonStyle.Primary" Click="@(() => MySqlRequestService.AddRequest(recipe.Id, "Etudiant"))" />
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <RadzenBadge Text=@($"Serves {recipe.Servings}") BadgeStyle="BadgeStyle.Info" />
+            @foreach (var tag in recipe.Tags)
+            {
+                <RadzenBadge Text="@tag" IsPill="true" class="ml-1" />
+            }
+        </div>
+
+        <RadzenRow Gap="2rem" class="mt-4">
+            <RadzenColumn Size="12" SizeMD="4">
+                <RadzenFieldset Text="Ingredients">
+                    <ul class="list-disc pl-5">
+                        @foreach (var ing in recipe.Ingredients)
+                        {
+                            <li>@ing.Qty.Amount @ing.Qty.Unit.ToString().ToLower() @ing.Name</li>
+                        }
+                    </ul>
+                </RadzenFieldset>
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="8">
+                <RadzenFieldset Text="Steps">
+                    <ol class="list-decimal pl-5">
+                        @foreach (var step in recipe.Steps.OrderBy(s => s.Order))
+                        {
+                            <li class="mb-2">@step.Text</li>
+                        }
+                    </ol>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenCard>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private RecipeApp_Eboaguillaume.Models.Recipe? recipe;
+
+    protected override void OnInitialized()
+    {
+        recipe = RecipeService.Get(Id);
+    }
+
+    void Edit(int recipeId) => Navigation.NavigateTo($"/recipes/edit/{recipeId}");
+
+    void Duplicate(RecipeApp_Eboaguillaume.Models.Recipe originalRecipe)
+    {
+        var newRecipe = new RecipeApp_Eboaguillaume.Models.Recipe
+        {
+            Id = 0,
+            Title = $"Copy of {originalRecipe.Title}",
+            Description = originalRecipe.Description,
+            Servings = originalRecipe.Servings,
+            Tags = new List<string>(originalRecipe.Tags),
+            Ingredients = originalRecipe.Ingredients.Select(i => new RecipeApp_Eboaguillaume.Models.IngredientLine
+            {
+                Name = i.Name, Qty = new RecipeApp_Eboaguillaume.Models.Quantity { Amount = i.Qty.Amount, Unit = i.Qty.Unit }
+            }).ToList(),
+            Steps = originalRecipe.Steps.Select(s => new RecipeApp_Eboaguillaume.Models.InstructionStep { Order = s.Order, Text = s.Text }).ToList()
+        };
+        // It's cleaner to have the cloning logic inside the model itself.
+        var _newRecipe = originalRecipe.Clone();
+        RecipeService.Add(_newRecipe);
+        Navigation.NavigateTo($"/recipes/edit/{_newRecipe.Id}");
+    }
+}

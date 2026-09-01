@@ -1,0 +1,31 @@
+@page "/admin/requests"
+@inject RecipeApp_Eboaguillaume.Services.MySqlRequestService MySqlRequestService
+@inject RecipeApp_Eboaguillaume.Services.IRecipeService RecipeService
+
+<PageTitle>Requêtes de recettes</PageTitle>
+
+<RadzenCard>
+    <h3>Demandes reçues</h3>
+
+    <RadzenDataGrid Data="@requests" TItem="RecipeApp_Eboaguillaume.Models.RecipeRequest">
+        <Columns>
+            <RadzenDataGridColumn Property="RequestedBy" Title="Demandeur" />
+            <RadzenDataGridColumn Property="RequestedOn" Title="Date" />
+            <RadzenDataGridColumn Title="Recette">
+                <Template Context="r">
+                    @RecipeService.Get(r.RecipeId)?.Title
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</RadzenCard>
+
+@code {
+    List<RecipeApp_Eboaguillaume.Models.RecipeRequest> requests = new();
+
+    protected override void OnInitialized()
+    {
+        requests = MySqlRequestService.GetAll();
+    }
+}
+

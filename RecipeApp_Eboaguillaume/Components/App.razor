@@ -1,0 +1,31 @@
+﻿<!-- Ce fichier est le composant racine de l'application. Il définit la structure HTML de base de chaque page. -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- La balise <base> spécifie l'URL de base pour toutes les URL relatives dans la page. -->
+    <base href="/" />
+    <!-- Liens vers les feuilles de style CSS. -->
+    <link rel="stylesheet" href="@Assets["lib/bootstrap/dist/css/bootstrap.min.css"]" />
+    <link rel="stylesheet" href="@Assets["app.css"]" />
+    <link rel="stylesheet" href="@Assets["Laboratoire1.styles.css"]" />
+    <ImportMap />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <!-- HeadOutlet est un emplacement où les pages peuvent injecter du contenu dans la balise <head> (ex: titres de page). -->
+    <HeadOutlet />
+    <!-- Thème Radzen pour les composants d'interface utilisateur. -->
+    <RadzenTheme Theme="material" />
+</head>
+
+<body>
+    <!-- Le composant Routes gère le routage côté client. InteractiveServer spécifie le mode de rendu. -->
+    <Routes @rendermode="InteractiveServer"/>
+    <!-- Scripts JavaScript nécessaires pour Blazor et les composants Radzen. -->
+    <script src="_framework/blazor.web.js"></script>
+    <script src="_content/Radzen.Blazor/Radzen.Blazor.js?v=@(typeof(Radzen.Colors).Assembly.GetName().Version)"></script>
+
+</body>
+
+</html>

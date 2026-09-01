@@ -1,0 +1,83 @@
+@page "/admin/recipes"
+@inject RecipeApp_Eboaguillaume.Services.IRecipeService RecipeService
+@inject Radzen.NotificationService Notify
+@inject Radzen.DialogService Dialog
+@inject NavigationManager Navigation
+@using RecipeApp_Eboaguillaume.Models
+
+
+<PageTitle>Administration - Recettes</PageTitle>
+
+<RadzenCard>
+    <h3>Gestion des recettes</h3>
+    <RadzenNotification />
+    <RadzenDialog />
+
+    <RadzenDataGrid Data="@recipes" TItem="Recipe" RowDoubleClick="@(args => View(args.Data))">
+        <Columns>
+            <RadzenDataGridColumn Property="Title" Title="Titre" />
+            <RadzenDataGridColumn Property="Description" Title="Description" />
+            <RadzenDataGridColumn Title="Actions">
+                <Template Context="r">
+                    <RadzenButton Icon="visibility" Text="Voir" Size="ButtonSize.Small" Click="@(() => View(r))" />
+                    <RadzenButton Icon="delete" Text="Supprimer" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small"
+                                  Click="@(() => Delete(r))" />
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Title="Publiée" Width="120px" Sortable="false" Filterable="false">
+                <Template Context="r">
+                    <RadzenSwitch Value="@r.IsPublished" TValue="bool" Change="@(args => TogglePublish(r, args))" />
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</RadzenCard>
+<RadzenButton Icon="cancel" Text="Cancel" ButtonStyle="ButtonStyle.Light"
+                              Click="@(() => Navigation.NavigateTo("/admin"))" />
+
+@code {
+    /// <summary>
+    /// La liste des recettes à afficher et gérer.
+    /// </summary>
+    List<RecipeApp_Eboaguillaume.Models.Recipe> recipes = new();
+
+    /// <summary>
+    /// Initialise la liste des recettes au chargement du composant.
+    /// </summary>
+    protected override void OnInitialized() => recipes = RecipeService.GetAll();
+
+    /// <summary>
+    /// Affiche une notification pour la visualisation d'une recette (action factice).
+    /// </summary>
+    /// <param name="r">La recette à visualiser.</param>
+    void View(RecipeApp_Eboaguillaume.Models.Recipe r)
+        => Notify.Notify(NotificationSeverity.Info, "Recette", $"Visualisation : {r.Title}");
+
+    /// <summary>
+    /// Gère la suppression d'une recette après confirmation de l'utilisateur.
+    /// </summary>
+    async Task Delete(RecipeApp_Eboaguillaume.Models.Recipe r)
+    {
+        var confirmed = await Dialog.Confirm($"Êtes-vous sûr de vouloir supprimer '{r.Title}' ?", "Confirmation de suppression", new ConfirmOptions() { OkButtonText = "Oui", CancelButtonText = "Non" });
+        if (confirmed == true)
+        {
+            RecipeService.Delete(r.Id);
+            recipes = RecipeService.GetAll(); // Refresh the list
+            Notify.Notify(NotificationSeverity.Success, "Suppression", $"{r.Title} a été supprimée.");
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    /// <summary>
+    /// Met à jour le statut de publication d'une recette.
+    /// </summary>
+    /// <param name="recipe">La recette à mettre à jour.</param>
+    /// <param name="isPublished">Le nouveau statut de publication.</param>
+    void TogglePublish(Recipe recipe, bool isPublished)
+    {
+        recipe.IsPublished = isPublished;
+        RecipeService.Update(recipe);
+        var status = isPublished ? "publiée" : "dépubliée";
+        Notify.Notify(NotificationSeverity.Info, "Mise à jour", $"La recette '{recipe.Title}' a été {status}.");
+    }
+}

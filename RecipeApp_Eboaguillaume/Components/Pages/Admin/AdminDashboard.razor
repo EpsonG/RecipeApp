@@ -1,0 +1,98 @@
+@page "/admin"
+@inject RecipeApp_Eboaguillaume.Services.IRecipeService RecipeService
+@inject RecipeApp_Eboaguillaume.Services.IRequestService RequestService
+@inject NavigationManager Navigation
+
+@using RecipeApp_Eboaguillaume.Models
+
+<PageTitle>Admin Dashboard</PageTitle>
+
+<RadzenCard>
+    <h3>Panneau d’administration</h3>
+
+    @if (isLoading)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+    }
+    else
+    {
+        <RadzenRow Gap="1rem">
+            <RadzenColumn Size="12" SizeMD="4">
+                <RadzenCard>
+                    <div class="d-flex flex-row gap-3">
+                        <RadzenIcon Icon="restaurant_menu" class="rz-color-primary" Style="font-size: 24px;" />
+                        <div class="ml-3">
+                            <div class="text-muted">Total de recettes</div>
+                            <h4>@totalRecipes</h4>
+                        </div>
+                    </div>
+                </RadzenCard>
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="4">
+                <RadzenCard>
+                    <div class="d-flex flex-row gap-3">
+                        <RadzenIcon Icon="request_quote" class="rz-color-info" Style="font-size: 24px;" />
+                        <div class="ml-3">
+                            <div class="text-muted">Total de requêtes</div>
+                            <h4>@totalRequests</h4>
+                        </div>
+                    </div>
+                </RadzenCard>
+            </RadzenColumn>
+        </RadzenRow>
+
+        <RadzenChart style="height: 300px; width: 100%;" class="mt-6" Type>
+            <RadzenColumnSeries Data="@chartData" CategoryProperty="RecipeTitle" ValueProperty="RecipeCount"
+                Title="Demandes par recette" />
+
+            <RadzenCategoryAxis />
+            <RadzenValueAxis />
+        </RadzenChart>
+        <RadzenButton Text="Gestion des recettes " Icon="restaurant_menu"
+            Click="@(() => Navigation.NavigateTo("/admin/recipes"))" />
+    }
+</RadzenCard>
+<AdminRecipes />
+@code {
+    private bool isLoading = true;
+    /// <summary>
+    /// Le nombre total de recettes dans le système.
+    /// </summary>
+    private int totalRecipes;
+    /// <summary>
+    /// Le nombre total de requêtes de consultation de recettes.
+    /// </summary>
+    private int totalRequests;
+    /// <summary>
+    /// Les données pour le graphique montrant le nombre de requêtes par recette.
+    /// </summary>
+    private List<RecipeRequestStat> chartData = new();
+
+    /// <summary>
+    /// Méthode appelée lors de l'initialisation du composant pour charger les données.
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        var recipes = RecipeService.GetAll();
+        var requests = RequestService.GetAll();
+        try
+        {
+            totalRecipes = recipes.Count;
+            totalRequests = requests.Count;
+            chartData = recipes.Select(r => new RecipeRequestStat
+            {
+                RecipeTitle = r.Title,
+                RecipeCount = RequestService.GetCountForRecipe(r.Id)
+            }).ToList();
+
+            isLoading = false;
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+
+    }
+}

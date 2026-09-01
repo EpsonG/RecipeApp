@@ -1,0 +1,15 @@
+## Build artifacts
+bin/
+obj/
+*.user
+
+## Visual Studio
+.vs/
+
+## Rider / VS Code (au cas où)
+.idea/
+.vscode/
+
+## OS
+.DS_Store
+Thumbs.db

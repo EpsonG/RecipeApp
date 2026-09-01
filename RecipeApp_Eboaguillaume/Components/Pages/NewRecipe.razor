@@ -1,0 +1,365 @@
+﻿@page "/recipes/new"
+@page "/recipes/edit/{Id:int}"
+@inject RecipeApp_Eboaguillaume.Services.IRecipeService RecipeService
+@inject NavigationManager Navigation
+@inject Radzen.NotificationService Notify
+@inject IChatGptService ChatGptService
+
+<PageTitle>@(IsNew ? "New Recipe" : $"Edit {model.Title}")</PageTitle>
+// Formulaire pour créer ou éditer une recette
+<RadzenCard>
+    // Notification pour les messages utilisateur
+    <RadzenNotification />
+    // Formulaire d'édition de la recette
+    <EditForm Model="@model" OnValidSubmit="Save">
+        // Validation des champs du formulaire
+        <DataAnnotationsValidator />
+        // Contenu du formulaire
+        <RadzenStack Gap="1.5rem">
+            <RadzenFieldset Text="Basic Information">
+                <RadzenStack Gap="1rem">
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenLabel Text="Title" Component="Title" />
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="8">
+                            <RadzenTextBox @bind-Value="model.Title" Name="Title" Style="width: 100%;" />
+                            <ValidationMessage For="() => model.Title" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenLabel Text="Description" Component="Description" />
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="8">
+                            <RadzenTextArea @bind-Value="model.Description" Name="Description" Rows="3" Style="width: 100%;" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenLabel Text="Servings" Component="Servings" />
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="8">
+                            <RadzenNumeric @bind-Value="model.Servings" Name="Servings" Min="1" Max="48" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                </RadzenStack>
+            </RadzenFieldset>
+            // Section des tags
+            <RadzenFieldset Text="Tags">
+                <RadzenStack Gap="1rem">
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+                        @foreach (var t in model.Tags)
+                        {
+                            <div class="tag-item">
+                                <RadzenBadge BadgeStyle="BadgeStyle.Secondary"
+                                             Text="@t" />
+                                <RadzenButton Icon="close" Class="ml-1 text-danger cursor-pointer"
+                                              Style="cursor:pointer" Click="@(() => RemoveTag(t))" />
+                            </div>
+                        }
+                    </RadzenStack>
+                    <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" AlignItems="AlignItems.Center">
+                        <RadzenTextBox @bind-Value="tagInput" Placeholder="Add a new tag" Style="width: 250px;" />
+                        <RadzenButton Icon="add" Text="Add Tag" Click="AddTag" ButtonStyle="ButtonStyle.Secondary" />
+                    </RadzenStack>
+                </RadzenStack>
+            </RadzenFieldset>
+            // Section des ingrédients
+            <RadzenFieldset Text="Ingredients">
+                <RadzenStack Gap="1rem">
+                    @if (model.Ingredients.Any())
+                    {
+                        @foreach (var ing in model.Ingredients)
+                        {
+                            <IngredientEditor Line="ing" OnRemove="@(() => RemoveIngredient(ing))" />
+                        }
+                    }
+                    else
+                    {
+                        <RadzenAlert Severity="AlertSeverity.Info" Summary="No ingredients yet" />
+                    }
+                    <RadzenButton Icon="add" Text="Add Ingredient" Click="AddIngredient" ButtonStyle="ButtonStyle.Success" />
+                    
+
+                </RadzenStack>
+            </RadzenFieldset>
+            // Section des étapes de préparation
+            <RadzenFieldset Text="Steps">
+                <RadzenStack Gap="1rem">
+                    @if (model.Steps.Any())
+                    {
+                        <ol class="list-decimal pl-5">
+                            @foreach (var s in model.Steps.OrderBy(s => s.Order))
+                            {
+                                <li class="flex gap-2 items-start mb-2">
+                                    <RadzenTextArea @bind-Value="s.Text" Rows="2" Style="width: 100%" />
+                                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small"
+                                                  Click="@(() => RemoveStep(s))" />
+                                </li>
+                            }
+                        </ol>
+                    }
+                    else
+                {
+                        <RadzenAlert Severity="AlertSeverity.Info" Summary="No steps yet" />
+                    }
+                    <RadzenButton Icon="add" Text="Add Step" Click="AddStep" ButtonStyle="ButtonStyle.Success" />
+                </RadzenStack>
+            </RadzenFieldset>
+            // Boutons d'action
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="1rem" class="mt-4">
+            // Bouton pour générer avec ChatGPT
+                <RadzenButton Text="Générer avec ChatGPT"
+                                  Icon="smart_toy"
+                                  Click="GenerateWithAi"
+                                  ButtonStyle="ButtonStyle.Primary" />
+                <RadzenButton Icon="save" Text="Save"
+                              ButtonType="ButtonType.Submit"
+                              ButtonStyle="ButtonStyle.Primary" />
+                <RadzenButton Icon="cancel" Text="Cancel" ButtonStyle="ButtonStyle.Light"
+                              Click="@(() => Navigation.NavigateTo("/"))" />
+            </RadzenStack>
+        </RadzenStack>
+    </EditForm>
+</RadzenCard>
+
+@code {
+    // Modèle de la recette en cours de création ou d'édition
+    RecipeApp_Eboaguillaume.Models.Recipe model = new();
+    
+    // Paramètre de l'URL pour l'identifiant de la recette (en mode édition)
+    [Parameter]
+    public int Id { get; set; }
+
+    // Propriété calculée pour déterminer si nous sommes en mode création ou édition
+    bool IsNew => Id == 0;
+    
+    // Variable pour stocker la saisie de l'utilisateur pour un nouveau tag
+    string tagInput = string.Empty;
+
+    /// <summary>
+    /// Méthode de cycle de vie Blazor.
+    /// Si un Id est passé en paramètre, charge la recette existante pour l'édition.
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        if (!IsNew)
+        {
+            var existingRecipe = RecipeService.Get(Id);
+            if (existingRecipe != null)
+            {
+                model = existingRecipe;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Ajoute un nouveau tag à la recette, avec une limite de 5 tags.
+    /// </summary>
+    void AddTag()
+    {
+        if (string.IsNullOrWhiteSpace(tagInput)) return;
+        if (model.Tags.Count >= 5)
+        {
+            Notify.Notify(Radzen.NotificationSeverity.Warning, "Limit", "Maximum 5 tags.");
+            return;
+        }
+        model.Tags.Add(tagInput.Trim());
+        tagInput = string.Empty;
+    }
+
+    /// <summary>
+    /// Supprime un tag de la recette.
+    /// </summary>
+    void RemoveTag(string t) => model.Tags.Remove(t);
+
+    /// <summary>
+    /// Ajoute une nouvelle ligne d'ingrédient vide.
+    /// </summary>
+    void AddIngredient() => model.Ingredients.Add(new RecipeApp_Eboaguillaume.Models.IngredientLine());
+    
+    /// <summary>
+    /// Supprime une ligne d'ingrédient.
+    /// </summary>
+    void RemoveIngredient(RecipeApp_Eboaguillaume.Models.IngredientLine ing) => model.Ingredients.Remove(ing);
+
+    /// <summary>
+    /// Ajoute une nouvelle étape de préparation, en calculant le bon numéro d'ordre.
+    /// </summary>
+    void AddStep()
+    {
+        var order = (model.Steps.Count == 0) ? 1 : model.Steps.Max(s => s.Order) + 1;
+        model.Steps.Add(new RecipeApp_Eboaguillaume.Models.InstructionStep { Order = order, Text = string.Empty });
+    }
+
+    /// <summary>
+    /// Supprime une étape de préparation.
+    /// </summary>
+    void RemoveStep(RecipeApp_Eboaguillaume.Models.InstructionStep step) => model.Steps.Remove(step);
+
+    /// <summary>
+    /// Gère la soumission du formulaire.
+    /// Ajoute ou met à jour la recette, affiche une notification et navigue vers la liste des recettes.
+    /// </summary>
+    void Save()
+    {
+        if (IsNew)
+        {
+            RecipeService.Add(model);
+            Notify.Notify(new Radzen.NotificationMessage { Severity = Radzen.NotificationSeverity.Success, Summary = "Created", Detail = $"{model.Title} created." });
+        }
+        else
+        {
+            RecipeService.Update(model);
+            Notify.Notify(new Radzen.NotificationMessage { Severity = Radzen.NotificationSeverity.Success, Summary = "Saved", Detail = $"{model.Title} updated." });
+        }
+        Navigation.NavigateTo("/recipes");
+    }
+
+	// Code pour l'implementation de la génération AI
+
+    private List<string> shoppingList = new();
+    private bool isGenerating = false;
+    private Random _random = new Random();
+
+
+    // code pour générer des suggestions avec ChatGPT 
+
+    private async Task GenerateWithAi()
+    {
+        if (string.IsNullOrWhiteSpace(model.Title))
+        {
+            Notify.Notify(NotificationSeverity.Warning, "ChatGPT", "Veuillez ajouter un titre avant de générer.");
+            return;
+        }
+
+        try
+        {
+            isGenerating = true;
+            var aiResult = await ChatGptService.GenerateForRecipeAsync(model);
+
+            // Injecter la description si elle est générée et que celle du modèle est vide
+            if (!string.IsNullOrWhiteSpace(aiResult.Description) && string.IsNullOrWhiteSpace(model.Description))
+            {
+                model.Description = aiResult.Description;
+            }
+
+            // Injecter les étapes
+            model.Steps.Clear();
+            int order = 1;
+            foreach (var stepText in aiResult.Steps)
+            {
+                model.Steps.Add(new InstructionStep
+                    {
+                        Order = order++,
+                        Text = stepText
+                    });
+            }
+
+            // Ajouter les tags suggérés (sans doublon)
+            foreach (var tag in aiResult.SuggestedTags)
+            {
+                var trimmed = tag.Trim();
+                if (!string.IsNullOrEmpty(trimmed) && !model.Tags.Contains(trimmed, StringComparer.OrdinalIgnoreCase))
+                {
+                    model.Tags.Add(trimmed);
+                }
+            }
+
+            // Option : stocker la ShoppingList dans une propriété locale pour l’affichage
+            shoppingList = aiResult.ShoppingList;
+
+            if (!shoppingList.Any())
+            {
+                Notify.Notify(NotificationSeverity.Info, "ChatGPT", "Aucune liste d’achats reçue.");
+            }
+            else if (model.Ingredients.Count == 0)
+            {
+                foreach (var item in shoppingList)
+                {
+                    var ing = CreateIngredientFromShoppingItem(item);
+                    if (!string.IsNullOrWhiteSpace(ing.Name))
+                    {
+                        model.Ingredients.Add(ing);
+                    }
+                }
+            }
+
+            Notify.Notify(NotificationSeverity.Success, "ChatGPT", "Suggestions générées avec succès.");
+        }
+        catch (Exception ex)
+        {
+            Notify.Notify(NotificationSeverity.Error, "ChatGPT", $"Erreur: {ex.Message}");
+        }
+        finally
+        {
+            isGenerating = false;
+        }
+    }
+   
+    private IngredientLine CreateIngredientFromShoppingItem(string item)
+    {
+        if (string.IsNullOrWhiteSpace(item))
+        {
+            return new IngredientLine();
+        }
+
+        var parts = item.Split('|');
+        var name = parts[0].Trim();
+        var notes = parts.Length > 1 ? parts[1].Trim() : null;
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return new IngredientLine();
+        }
+
+        return new IngredientLine
+            {
+                Name = name,
+                Notes = notes,
+                Qty = new Quantity
+                {
+                    Amount = _random.Next(1, 6), // Génère une quantité aléatoire entre 1 et 5
+                    Unit = GuessUnitForItem(name)
+                }
+            };
+    }
+
+    private Unit GuessUnitForItem(string itemName)
+    {
+        var lowerItem = itemName.ToLowerInvariant();
+
+        // Liquides en ml
+        if (lowerItem.Contains("lait") || lowerItem.Contains("milk") ||
+            lowerItem.Contains("eau") || lowerItem.Contains("water") ||
+            lowerItem.Contains("huile") || lowerItem.Contains("oil") ||
+            lowerItem.Contains("vin") || lowerItem.Contains("wine") ||
+            lowerItem.Contains("bouillon") || lowerItem.Contains("broth") || lowerItem.Contains("stock") ||
+            lowerItem.Contains("crème") || lowerItem.Contains("cream") ||
+            lowerItem.Contains("vinaigre") || lowerItem.Contains("vinegar") ||
+            lowerItem.Contains("jus") || lowerItem.Contains("juice"))
+        {
+            return Unit.Milliliter;
+        }
+
+        // Poudres/Solides en grammes
+        if (lowerItem.Contains("farine") || lowerItem.Contains("flour") ||
+            lowerItem.Contains("sucre") || lowerItem.Contains("sugar") ||
+            lowerItem.Contains("sel") || lowerItem.Contains("salt") ||
+            lowerItem.Contains("poivre") || lowerItem.Contains("pepper") ||
+            lowerItem.Contains("riz") || lowerItem.Contains("rice") ||
+            lowerItem.Contains("beurre") || lowerItem.Contains("butter") ||
+            lowerItem.Contains("chocolat") || lowerItem.Contains("chocolate") ||
+            lowerItem.Contains("poudre") || lowerItem.Contains("powder") ||
+            lowerItem.Contains("fromage") || lowerItem.Contains("cheese"))
+        {
+            return Unit.Gram;
+        }
+
+        // Par défaut, pour les fruits, légumes, etc.
+        return Unit.Piece;
+    }
+
+
+}
