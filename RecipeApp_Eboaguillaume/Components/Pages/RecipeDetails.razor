@@ -1,62 +1,69 @@
-﻿@page "/recipes/{Id:int}"
+@page "/recipes/{Id:int}"
 @rendermode InteractiveServer
 @inject RecipeApp_Eboaguillaume.Services.IRecipeService RecipeService
 @inject RecipeApp_Eboaguillaume.Services.MySqlRequestService MySqlRequestService
 @inject NavigationManager Navigation
+@inject Radzen.NotificationService Notify
 
 <PageTitle>@recipe?.Title</PageTitle>
 
+<RadzenNotification />
+
 @if (recipe == null)
 {
-    <RadzenAlert Severity="AlertSeverity.Warning" Summary="Not Found" Detail="Sorry, recipe not found." />
+    <RadzenAlert Severity="AlertSeverity.Warning" Summary="Introuvable" Detail="Cette recette n'existe pas." />
 }
 else
 {
-    <RadzenCard>
-        <RadzenNotification />
-        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-            <div>
-                <h1 class="fs-2 fw-bold">@recipe.Title</h1>
-                <p class="text-muted">@recipe.Description</p>
-            </div>
-            <div class="d-flex gap-2 flex-wrap">
-                <RadzenButton Icon="edit" Text="Edit" ButtonStyle="ButtonStyle.Primary" Click="@(() => Edit(recipe.Id))" />
-                <RadzenButton Icon="content_copy" Text="Duplicate" ButtonStyle="ButtonStyle.Secondary" Click="@(() => Duplicate(recipe))" />
-                <RadzenButton Icon="favorite" Text="Je veux cette recette" ButtonStyle="ButtonStyle.Primary" Click="@(() => MySqlRequestService.AddRequest(recipe.Id, "Etudiant"))" />
+    <a class="page-back" href="/recipes">&larr; Toutes les recettes</a>
+
+    <div class="detail-hero">
+        <span class="detail-emoji">@Emoji</span>
+        <div class="detail-hero-text">
+            <h1 class="detail-title">@recipe.Title</h1>
+            <p class="detail-description">@recipe.Description</p>
+            <div class="detail-badges">
+                <span class="detail-badge servings">@recipe.Servings pers.</span>
+                @foreach (var tag in recipe.Tags)
+                {
+                    <span class="detail-badge tag">@tag</span>
+                }
             </div>
         </div>
+    </div>
 
-        <div class="mt-4">
-            <RadzenBadge Text=@($"Serves {recipe.Servings}") BadgeStyle="BadgeStyle.Info" />
-            @foreach (var tag in recipe.Tags)
-            {
-                <RadzenBadge Text="@tag" IsPill="true" class="ms-1" />
-            }
+    <div class="detail-actions">
+        <RadzenButton Icon="edit" Text="Modifier" ButtonStyle="ButtonStyle.Primary" Click="@(() => Edit(recipe.Id))" />
+        <RadzenButton Icon="content_copy" Text="Dupliquer" ButtonStyle="ButtonStyle.Light" Click="@(() => Duplicate(recipe))" />
+        <RadzenButton Icon="favorite" Text="Je veux cette recette" ButtonStyle="ButtonStyle.Light" Click="RequestRecipe" />
+    </div>
+
+    <div class="detail-grid">
+        <div class="detail-card">
+            <h2 class="detail-card-title">Ingrédients</h2>
+            <ul class="detail-ingredients">
+                @foreach (var ing in recipe.Ingredients)
+                {
+                    <li>
+                        <span class="detail-check">✓</span>
+                        <span>@ing.Qty.Amount @ing.Qty.Unit.ToString().ToLower() @ing.Name</span>
+                    </li>
+                }
+            </ul>
         </div>
-
-        <RadzenRow Gap="2rem" class="mt-4">
-            <RadzenColumn Size="12" SizeMD="4">
-                <RadzenFieldset Text="Ingredients">
-                    <ul>
-                        @foreach (var ing in recipe.Ingredients)
-                        {
-                            <li>@ing.Qty.Amount @ing.Qty.Unit.ToString().ToLower() @ing.Name</li>
-                        }
-                    </ul>
-                </RadzenFieldset>
-            </RadzenColumn>
-            <RadzenColumn Size="12" SizeMD="8">
-                <RadzenFieldset Text="Steps">
-                    <ol>
-                        @foreach (var step in recipe.Steps.OrderBy(s => s.Order))
-                        {
-                            <li class="mb-2">@step.Text</li>
-                        }
-                    </ol>
-                </RadzenFieldset>
-            </RadzenColumn>
-        </RadzenRow>
-    </RadzenCard>
+        <div class="detail-card">
+            <h2 class="detail-card-title">Étapes</h2>
+            <ol class="detail-steps">
+                @foreach (var step in recipe.Steps.OrderBy(s => s.Order))
+                {
+                    <li>
+                        <span class="detail-step-number">@step.Order</span>
+                        <span>@step.Text</span>
+                    </li>
+                }
+            </ol>
+        </div>
+    </div>
 }
 
 @code {
@@ -64,6 +71,9 @@ else
     public int Id { get; set; }
 
     private RecipeApp_Eboaguillaume.Models.Recipe? recipe;
+
+    private static readonly string[] Emojis = { "🍳", "🍲", "🥘", "🍜", "🥗", "🍰", "🍛", "🥧" };
+    private string Emoji => recipe is null ? "🍽️" : Emojis[Math.Abs(recipe.Title.GetHashCode()) % Emojis.Length];
 
     protected override void OnInitialized()
     {
@@ -77,5 +87,12 @@ else
         var newRecipe = originalRecipe.Clone();
         RecipeService.Add(newRecipe);
         Navigation.NavigateTo($"/recipes/edit/{newRecipe.Id}");
+    }
+
+    void RequestRecipe()
+    {
+        if (recipe is null) return;
+        MySqlRequestService.AddRequest(recipe.Id, "Etudiant");
+        Notify.Notify(Radzen.NotificationSeverity.Success, "Merci !", "Votre intérêt pour cette recette a été enregistré.");
     }
 }

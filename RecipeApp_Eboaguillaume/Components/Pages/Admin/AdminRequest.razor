@@ -4,12 +4,14 @@
 @inject RecipeApp_Eboaguillaume.Services.MySqlRequestService MySqlRequestService
 @inject RecipeApp_Eboaguillaume.Services.IRecipeService RecipeService
 
-<PageTitle>Requêtes de recettes</PageTitle>
+<PageTitle>Requêtes</PageTitle>
 
-<RadzenCard>
-    <h3>Demandes reçues</h3>
+<a class="page-back" href="/admin">&larr; Tableau de bord</a>
+<h1 class="page-title">Demandes reçues</h1>
+<p class="page-subtitle">@requests.Count demande(s) au total</p>
 
-    <RadzenDataGrid Data="@requests" TItem="RecipeApp_Eboaguillaume.Models.RecipeRequest">
+<div class="admin-table-card">
+    <RadzenDataGrid Data="@requests" TItem="RecipeApp_Eboaguillaume.Models.RecipeRequest" AllowPaging="true" PageSize="10">
         <Columns>
             <RadzenDataGridColumn Property="RequestedBy" Title="Demandeur" />
             <RadzenDataGridColumn Property="RequestedOn" Title="Date" />
@@ -20,7 +22,7 @@
             </RadzenDataGridColumn>
         </Columns>
     </RadzenDataGrid>
-</RadzenCard>
+</div>
 
 @code {
     List<RecipeApp_Eboaguillaume.Models.RecipeRequest> requests = new();
@@ -32,4 +34,3 @@
         recipeTitlesById = RecipeService.GetAll().ToDictionary(r => r.Id, r => r.Title);
     }
 }
-

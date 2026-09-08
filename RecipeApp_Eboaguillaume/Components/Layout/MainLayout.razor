@@ -13,12 +13,12 @@
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Gap="1rem" class="w-100">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem">
                 <RadzenSidebarToggle Click="@(() => sidebar1Expanded = !sidebar1Expanded)" />
-                <RadzenText Text="Recipe App" TextStyle="TextStyle.H5" TagName="TagName.H1" class="rz-color-white" />
+                <RadzenText Text="Recipe App" TextStyle="TextStyle.H5" TagName="TagName.H1" class="rz-color-white app-brand" />
             </RadzenStack>
             <AuthorizeView>
                 <Authorized>
                     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.75rem" class="me-3">
-                        <RadzenText Text="@context.User.Identity?.Name" class="rz-color-white" Style="opacity:.85" />
+                        <RadzenText Text="@context.User.Identity?.Name" class="rz-color-white app-header-user-email" Style="opacity:.85" />
                         <RadzenButton Text="Mot de passe" Icon="password" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
                                       Click="@(() => Navigation.NavigateTo("/admin/change-password"))" />
                         <RadzenButton Text="Déconnexion" Icon="logout" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
@@ -34,14 +34,14 @@
     </RadzenHeader>
     <RadzenSidebar @bind-Expanded="@sidebar1Expanded">
         <RadzenPanelMenu>
-            <RadzenPanelMenuItem Text="Home" Path="/" Icon="home" />
-            <RadzenPanelMenuItem Text="Dashboard" Path="/admin" Icon="dashboard" />
+            <RadzenPanelMenuItem Text="Accueil" Path="/" Icon="home" />
+            <RadzenPanelMenuItem Text="Tableau de bord" Path="/admin" Icon="dashboard" />
             <RadzenPanelMenuItem Text="Recettes" Path="/recipes" Icon="restaurant_menu" />
-            <RadzenPanelMenuItem Text="Requêtes" Path="/admin/requests" Icon="search"/>
+            <RadzenPanelMenuItem Text="Requêtes" Path="/admin/requests" Icon="forum" />
         </RadzenPanelMenu>
     </RadzenSidebar>
     <RadzenBody>
-        <div class="container">
+        <div class="container py-4">
             @Body
         </div>
     </RadzenBody>

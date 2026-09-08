@@ -7,35 +7,34 @@
 @inject NavigationManager Navigation
 @using RecipeApp_Eboaguillaume.Models
 
+<PageTitle>Gestion des recettes</PageTitle>
 
-<PageTitle>Administration - Recettes</PageTitle>
+<RadzenNotification />
+<RadzenDialog />
 
-<RadzenCard>
-    <h3>Gestion des recettes</h3>
-    <RadzenNotification />
-    <RadzenDialog />
+<a class="page-back" href="/admin">&larr; Tableau de bord</a>
+<h1 class="page-title">Gestion des recettes</h1>
 
-    <RadzenDataGrid Data="@recipes" TItem="Recipe" RowDoubleClick="@(args => View(args.Data))">
+<div class="admin-table-card">
+    <RadzenDataGrid Data="@recipes" TItem="Recipe" RowDoubleClick="@(args => View(args.Data))" AllowPaging="true" PageSize="10">
         <Columns>
             <RadzenDataGridColumn Property="Title" Title="Titre" />
             <RadzenDataGridColumn Property="Description" Title="Description" />
-            <RadzenDataGridColumn Title="Actions">
-                <Template Context="r">
-                    <RadzenButton Icon="visibility" Text="Voir" Size="ButtonSize.Small" Click="@(() => View(r))" />
-                    <RadzenButton Icon="delete" Text="Supprimer" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small"
-                                  Click="@(() => Delete(r))" />
-                </Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn Title="Publiée" Width="120px" Sortable="false" Filterable="false">
+            <RadzenDataGridColumn Title="Publiée" Width="110px" Sortable="false" Filterable="false">
                 <Template Context="r">
                     <RadzenSwitch Value="@r.IsPublished" TValue="bool" Change="@(args => TogglePublish(r, args))" />
                 </Template>
             </RadzenDataGridColumn>
+            <RadzenDataGridColumn Title="Actions" Width="140px" Sortable="false" Filterable="false" TextAlign="TextAlign.Center">
+                <Template Context="r">
+                    <RadzenButton Icon="visibility" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Click="@(() => View(r))" />
+                    <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" class="ms-1"
+                                  Click="@(() => Delete(r))" />
+                </Template>
+            </RadzenDataGridColumn>
         </Columns>
     </RadzenDataGrid>
-</RadzenCard>
-<RadzenButton Icon="cancel" Text="Cancel" ButtonStyle="ButtonStyle.Light"
-                              Click="@(() => Navigation.NavigateTo("/admin"))" />
+</div>
 
 @code {
     /// <summary>
@@ -49,11 +48,9 @@
     protected override void OnInitialized() => recipes = RecipeService.GetAll();
 
     /// <summary>
-    /// Affiche une notification pour la visualisation d'une recette (action factice).
+    /// Ouvre la fiche détaillée de la recette.
     /// </summary>
-    /// <param name="r">La recette à visualiser.</param>
-    void View(RecipeApp_Eboaguillaume.Models.Recipe r)
-        => Notify.Notify(NotificationSeverity.Info, "Recette", $"Visualisation : {r.Title}");
+    void View(RecipeApp_Eboaguillaume.Models.Recipe r) => Navigation.NavigateTo($"/recipes/{r.Id}");
 
     /// <summary>
     /// Gère la suppression d'une recette après confirmation de l'utilisateur.

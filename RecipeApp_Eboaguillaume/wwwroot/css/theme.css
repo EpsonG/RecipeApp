@@ -1,0 +1,165 @@
+/* ==========================================================================
+   Recipe App — design system
+   Palette chaude (terracotta / ambre) cohérente avec la landing page,
+   appliquée à l'ensemble des composants Radzen via leurs variables CSS.
+   ========================================================================== */
+
+:root {
+    /* ---- Marque ---- */
+    --rz-primary: #C2410C;
+    --rz-primary-light: #E2764A;
+    --rz-primary-lighter: rgba(194, 65, 12, 0.12);
+    --rz-primary-dark: #9A3412;
+    --rz-primary-darker: #7C2D12;
+
+    --rz-secondary: #B45309;
+    --rz-secondary-light: #D97706;
+    --rz-secondary-lighter: rgba(180, 83, 9, 0.14);
+    --rz-secondary-dark: #92400E;
+    --rz-secondary-darker: #78350F;
+
+    --rz-on-primary: #FFF7ED;
+    --rz-on-secondary: #FFF7ED;
+
+    /* ---- Sémantique ---- */
+    --rz-success: #15803D;
+    --rz-success-light: #22A855;
+    --rz-success-lighter: rgba(21, 128, 61, 0.14);
+    --rz-danger: #DC2626;
+    --rz-danger-light: #EF4444;
+    --rz-danger-lighter: rgba(220, 38, 38, 0.14);
+    --rz-warning: #D97706;
+    --rz-warning-light: #F59E0B;
+    --rz-warning-lighter: rgba(217, 119, 6, 0.16);
+    --rz-info: #0369A1;
+    --rz-info-light: #0EA5E9;
+    --rz-info-lighter: rgba(3, 105, 161, 0.14);
+
+    /* ---- Neutres (chauds) ---- */
+    --rz-base-50: #FEFCFA;
+    --rz-base-100: #FAF6F1;
+    --rz-base-200: #F1E9DE;
+    --rz-base-300: #E4D8C7;
+    --rz-base-400: #C9B8A0;
+    --rz-base-500: #A6947C;
+    --rz-base-600: #7C6E5B;
+    --rz-base-700: #574C3E;
+    --rz-base-800: #362E24;
+    --rz-base-900: #211B14;
+    --rz-base-lighter: #FFFFFF;
+    --rz-base-light: #FAF6F1;
+    --rz-base-dark: #7C6E5B;
+    --rz-base-darker: #211B14;
+
+    --rz-body-background-color: var(--rz-base-100);
+    --rz-base-background-color: #FFFFFF;
+    --rz-text-title-color: var(--rz-base-900);
+    --rz-text-color: var(--rz-base-700);
+    --rz-text-secondary-color: var(--rz-base-600);
+
+    /* ---- Forme ---- */
+    --rz-border-radius: 12px;
+    --rz-border-radius-1: 0.5rem;
+    --rz-border-radius-2: 0.75rem;
+    --rz-border-radius-3: 1rem;
+    --rz-border-radius-4: 1.25rem;
+    --rz-border-radius-5: 1.5rem;
+
+    /* ---- Typo ---- */
+    --rz-text-font-family: 'Plus Jakarta Sans', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+
+    /* ---- Structure ---- */
+    --rz-header-background-color: #241A12;
+    --rz-header-color: #FDF3E7;
+    --rz-sidebar-background-color: #FFFDFB;
+    --rz-sidebar-color: var(--rz-base-800);
+}
+
+/* Sidebar : lien actif mis en avant avec la couleur de marque */
+.rz-panel-menu .rz-navigation-item-link.rz-state-selected,
+.rz-panel-menu .rz-navigation-item-link.rz-state-selected:hover {
+    background-color: var(--rz-primary-lighter);
+    color: var(--rz-primary-dark);
+    font-weight: 600;
+}
+
+.rz-panel-menu .rz-navigation-item-link:hover {
+    background-color: var(--rz-base-100);
+}
+
+/* Cartes : ombre douce cohérente avec la landing page */
+.rz-card {
+    box-shadow: 0 1px 2px rgba(33, 27, 20, 0.05), 0 8px 24px -12px rgba(33, 27, 20, 0.12);
+    border: 1px solid var(--rz-base-200);
+}
+
+body {
+    background: var(--rz-body-background-color);
+}
+
+/* ---- Composants de page réutilisables ---- */
+
+.page-back {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--rz-text-secondary-color);
+    margin-bottom: 0.75rem;
+}
+
+    .page-back:hover {
+        color: var(--rz-primary);
+    }
+
+.page-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin: 0 0 1.25rem;
+    color: var(--rz-text-title-color);
+}
+
+.page-subtitle {
+    margin: -1rem 0 1.5rem;
+    color: var(--rz-text-secondary-color);
+    font-size: 0.9rem;
+}
+
+.app-brand {
+    font-family: 'Caveat', cursive;
+    font-weight: 700 !important;
+    font-size: 1.5rem !important;
+    white-space: nowrap;
+}
+
+.rz-header {
+    flex-wrap: wrap;
+    height: auto !important;
+    min-height: var(--rz-header-min-height);
+    padding-block: 0.4rem;
+}
+
+@media (max-width: 640px) {
+    .app-header-user-email {
+        display: none;
+    }
+
+    .rz-header .rz-stack {
+        flex-wrap: wrap;
+        row-gap: 0.4rem !important;
+    }
+
+    .rz-header .rz-button .rz-button-text {
+        display: none;
+    }
+
+    .rz-header .rz-button {
+        padding: 0.5rem;
+    }
+}
+
+.admin-table-card {
+    background: var(--rz-base-background-color);
+    border: 1px solid var(--rz-base-200);
+    border-radius: var(--rz-border-radius-3);
+    padding: 0.5rem;
+}

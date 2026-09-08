@@ -9,35 +9,40 @@
 <PageTitle>Connexion</PageTitle>
 
 <HeadContent>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/landing.css">
+    <link rel="stylesheet" href="css/auth.css">
 </HeadContent>
 
-<div class="landing" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;">
-    <div style="max-width:380px;width:100%;background:#fff;border:1px solid #ECEDF1;border-radius:24px;padding:36px;box-shadow:0 20px 40px rgba(17,17,17,0.08);">
-        <h1 style="font-size:24px;font-weight:800;margin:0 0 4px;">Connexion</h1>
-        <p style="color:#6B7280;font-size:14px;margin:0 0 24px;">Accès réservé à l'administration.</p>
+<div class="auth-page">
+    <span class="auth-brand">Recipe App</span>
 
-        <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login" style="display:flex;flex-direction:column;gap:14px;">
+    <div class="auth-card">
+        <h1 class="auth-title">Connexion</h1>
+        <p class="auth-subtitle">Accès réservé à l'administration.</p>
+
+        <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login" class="auth-form">
             <DataAnnotationsValidator />
-            <ValidationSummary style="color:#dc2626;font-size:13px;" />
+            <ValidationSummary class="auth-error" />
 
-            <InputText @bind-Value="Input.Email" placeholder="Courriel" autocomplete="username"
-                   style="width:100%;border:1.5px solid #E3E4E9;border-radius:12px;padding:12px 14px;font-size:14px;font-family:inherit;" />
+            <div class="auth-field">
+                <label for="email">Courriel</label>
+                <InputText id="email" @bind-Value="Input.Email" placeholder="vous@exemple.com" autocomplete="username" />
+            </div>
 
-            <InputText type="password" @bind-Value="Input.Password" placeholder="Mot de passe" autocomplete="current-password"
-                   style="width:100%;border:1.5px solid #E3E4E9;border-radius:12px;padding:12px 14px;font-size:14px;font-family:inherit;" />
+            <div class="auth-field">
+                <label for="password">Mot de passe</label>
+                <InputText id="password" type="password" @bind-Value="Input.Password" placeholder="••••••••" autocomplete="current-password" />
+            </div>
 
             @if (!string.IsNullOrEmpty(errorMessage))
             {
-                <p style="color:#dc2626;font-size:13px;margin:0;">@errorMessage</p>
+                <p class="auth-error">@errorMessage</p>
             }
 
-            <button type="submit" class="landing-cta" style="padding:14px;border-radius:12px;">Se connecter</button>
+            <button type="submit" class="auth-submit">Se connecter</button>
         </EditForm>
     </div>
+
+    <a href="/" class="auth-back">&larr; Retour à l'accueil</a>
 </div>
 
 @code {
