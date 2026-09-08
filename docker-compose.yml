@@ -1,0 +1,36 @@
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: blazor_recipes
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__MySqlConnection: "Server=mysql;Port=3306;database=blazor_recipes;user id=root;password=${MYSQL_ROOT_PASSWORD}"
+      OpenAI__ApiKey: ${OPENAI_API_KEY}
+      Admin__Email: ${ADMIN_EMAIL}
+      Admin__Password: ${ADMIN_PASSWORD}
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql-data:

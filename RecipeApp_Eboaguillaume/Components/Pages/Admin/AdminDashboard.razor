@@ -1,4 +1,6 @@
 @page "/admin"
+@rendermode InteractiveServer
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
 @inject RecipeApp_Eboaguillaume.Services.IRecipeService RecipeService
 @inject RecipeApp_Eboaguillaume.Services.IRequestService RequestService
 @inject NavigationManager Navigation
@@ -21,7 +23,7 @@
                 <RadzenCard>
                     <div class="d-flex flex-row gap-3">
                         <RadzenIcon Icon="restaurant_menu" class="rz-color-primary" Style="font-size: 24px;" />
-                        <div class="ml-3">
+                        <div class="ms-3">
                             <div class="text-muted">Total de recettes</div>
                             <h4>@totalRecipes</h4>
                         </div>
@@ -32,7 +34,7 @@
                 <RadzenCard>
                     <div class="d-flex flex-row gap-3">
                         <RadzenIcon Icon="request_quote" class="rz-color-info" Style="font-size: 24px;" />
-                        <div class="ml-3">
+                        <div class="ms-3">
                             <div class="text-muted">Total de requêtes</div>
                             <h4>@totalRequests</h4>
                         </div>
@@ -73,26 +75,29 @@
     /// </summary>
     protected override void OnInitialized()
     {
-        var recipes = RecipeService.GetAll();
-        var requests = RequestService.GetAll();
         try
         {
+            var recipes = RecipeService.GetAll();
+            var requests = RequestService.GetAll();
+            var countsByRecipeId = requests
+                .GroupBy(r => r.RecipeId)
+                .ToDictionary(g => g.Key, g => g.Count());
+
             totalRecipes = recipes.Count;
             totalRequests = requests.Count;
             chartData = recipes.Select(r => new RecipeRequestStat
             {
                 RecipeTitle = r.Title,
-                RecipeCount = RequestService.GetCountForRecipe(r.Id)
+                RecipeCount = countsByRecipeId.TryGetValue(r.Id, out var count) ? count : 0
             }).ToList();
-
-            isLoading = false;
-
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
         }
-
-
+        finally
+        {
+            isLoading = false;
+        }
     }
 }

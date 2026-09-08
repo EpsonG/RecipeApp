@@ -1,11 +1,19 @@
-﻿<!-- Le composant Router est le cœur du système de routage de Blazor. -->
+@using Microsoft.AspNetCore.Components.Authorization
+
+<!-- Le composant Router est le cœur du système de routage de Blazor. -->
 <!-- Il intercepte la navigation et rend le composant qui correspond à l'adresse demandée. -->
 <Router AppAssembly="typeof(Program).Assembly">
     <!-- Le contenu de la balise <Found> est affiché lorsqu'une route correspondante est trouvée. -->
     <Found Context="routeData">
-        <!-- RouteView rend le composant de la page correspondante, en utilisant la disposition par défaut spécifiée. -->
-        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+        <!-- AuthorizeRouteView applique les attributs [Authorize] des pages avant de les afficher. -->
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+            <NotAuthorized>
+                <RedirectToLogin ReturnUrl="@Nav.ToBaseRelativePath(Nav.Uri)" />
+            </NotAuthorized>
+        </AuthorizeRouteView>
         <!-- FocusOnNavigate est un composant d'accessibilité qui déplace le focus sur un élément (ici, le premier <h1>) après la navigation. -->
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
 </Router>
+
+@inject Microsoft.AspNetCore.Components.NavigationManager Nav

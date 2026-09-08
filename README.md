@@ -28,7 +28,15 @@ Depuis le dossier `RecipeApp_Eboaguillaume/` :
 dotnet user-secrets init
 dotnet user-secrets set "ConnectionStrings:MySqlConnection" "Server=127.0.0.1;Port=3306;database=blazor_recipes;user id=root;password=TON_MOT_DE_PASSE"
 dotnet user-secrets set "OpenAI:ApiKey" "TA_CLE_OPENAI"
+dotnet user-secrets set "Admin:Email" "admin@example.com"
+dotnet user-secrets set "Admin:Password" "UnMotDePasseFort!"
 ```
+
+`Admin:Email` / `Admin:Password` définissent le compte administrateur créé automatiquement
+au démarrage (via ASP.NET Core Identity) s'il n'existe pas déjà. Ce compte est le seul
+autorisé à accéder aux routes `/admin/*`. Au premier lancement, l'application applique
+aussi automatiquement la migration EF Core qui crée les tables Identity (`AspNetUsers`,
+`AspNetRoles`, etc.) dans la même base MySQL.
 
 ## Lancer le projet
 
@@ -44,6 +52,7 @@ dans **Azure Portal → App Service → Configuration → Application settings /
 
 - `ConnectionStrings__MySqlConnection` (ou `MySqlConnection` sous Connection strings, type MySQL)
 - `OpenAI__ApiKey`
+- `Admin__Email` / `Admin__Password`
 
 ## Notes de sécurité
 

@@ -1,4 +1,5 @@
 ﻿@page "/recipes"
+@rendermode InteractiveServer
 @inject RecipeApp_Eboaguillaume.Services.IRecipeService RecipeService
 @using RecipeApp_Eboaguillaume.Models
 @inject NavigationManager Navigation
@@ -9,11 +10,11 @@
 <RadzenCard>
     <RadzenNotification />
 
-    <div class="rz-border-b-1 rz-border-base-300 flex justify-between items-center mb-4 pb-2">
-        
-        <div class="flex gap-1">
-        
-            <h3 class="text-lg font-semibold m-0">Recipes</h3>
+    <div class="rz-border-b-1 rz-border-base-300 d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 pb-2">
+
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+
+            <h3 class="fs-5 fw-semibold m-0">Recipes</h3>
             <RadzenButton Icon="add" Text="New"
                           ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Medium"
                           Click="@(() => Navigation.NavigateTo("/recipes/new"))" />
@@ -21,12 +22,9 @@
             <RadzenButton Icon="refresh" Text="Reload"
                           ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Medium"
                           Click="@(() => Reload(showNotification: true))" />
-            
-            <RadzenButton Text="Custom Purple" class="my-purple my-round" Icon="favorite" 
-                          Size="ButtonSize.Medium" />
-            
-            @* <RadzenTextBox Placeholder="Search recipes..." @oninput="OnSearch" Style="width: 250px;" /> *@
-        
+
+            <RadzenTextBox Placeholder="Search recipes..." @oninput="OnSearch" Style="width: 250px;" />
+
         </div>
         
     </div>
@@ -43,9 +41,9 @@
                     <RadzenButton Icon="visibility" Text="View" ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Small"
                                   Click="@(() => View(r))" />
                     <RadzenButton Icon="edit" Text="Edit" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small"
-                                  class="ml-2" Click="@(() => Edit(r))" />
+                                  class="ms-2" Click="@(() => Edit(r))" />
                     <RadzenButton Icon="delete" Text="Delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small"
-                                  class="ml-2" Click="@(() => Delete(r))" />
+                                  class="ms-2" Click="@(() => Delete(r))" />
                 </Template>
             </RadzenDataGridColumn>
         </Columns>
@@ -124,20 +122,5 @@
                 Duration = 3000
             });
         }
-    }
-
-    // Exemple SaveRecipe pour ajout
-    void SaveRecipe(Recipe newRecipe)
-    {
-        RecipeService.Add(newRecipe);
-
-        // Notification Success pour ajout
-        Notify.Notify(new Radzen.NotificationMessage
-        {
-            Severity = Radzen.NotificationSeverity.Success,
-            Summary = "Success",
-            Detail = $"{newRecipe.Title} added.",
-            Duration = 3000
-        });
     }
 }

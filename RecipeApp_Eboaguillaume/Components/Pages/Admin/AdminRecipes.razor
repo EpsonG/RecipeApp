@@ -1,4 +1,6 @@
 @page "/admin/recipes"
+@rendermode InteractiveServer
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
 @inject RecipeApp_Eboaguillaume.Services.IRecipeService RecipeService
 @inject Radzen.NotificationService Notify
 @inject Radzen.DialogService Dialog

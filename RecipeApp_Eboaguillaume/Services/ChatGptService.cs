@@ -56,7 +56,7 @@ public class ChatGptService : IChatGptService
         return ParseResult(content);
     }
     // Builds the prompt to send to the AI
-    private string BuildPrompt(Recipe recipe)
+    internal string BuildPrompt(Recipe recipe)
     {
         var ingredientsText = string.Join("\n", recipe.Ingredients.Select(i =>
             $"- {i.Qty.Amount} {i.Qty.Unit} {i.Name}"));
@@ -85,7 +85,7 @@ public class ChatGptService : IChatGptService
     }
 
     // Parses the AI response into a RecipeAiResult object
-    private RecipeAiResult ParseResult(string content)
+    internal RecipeAiResult ParseResult(string content)
     {
         var result = new RecipeAiResult();
 
@@ -111,12 +111,6 @@ public class ChatGptService : IChatGptService
             {
                 var lines = trimmed.Split('\n', StringSplitOptions.RemoveEmptyEntries).Skip(1);
                 result.ShoppingList = lines.Select(l => l.Trim()).Where(l => !string.IsNullOrWhiteSpace(l)).ToList();
-            }
-             else if (trimmed.StartsWith("DESCRIPTION", StringComparison.OrdinalIgnoreCase))
-            {
-                // On prend tout le texte après "DESCRIPTION" jusqu'à la fin ou une nouvelle section
-                var desc = trimmed.Substring("DESCRIPTION".Length).Trim();
-                result.Description = desc;
             }
         }
 

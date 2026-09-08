@@ -3,7 +3,7 @@
 <!-- Composant pour éditer une seule ligne d'ingrédient dans une recette. -->
 <RadzenStack Gap="10px" AlignItems="AlignItems.Start">
     <!-- Conteneur pour les champs d'édition d'une ligne d'ingrédient -->
-    <div class="flex gap-2 items-center">
+    <div class="d-flex gap-2 align-items-center flex-wrap">
         <!-- Champ de texte pour le nom de l'ingrédient -->
         <RadzenTextBox @bind-Value="Line.Name" Placeholder="Ingredient" Style="width: 240px" />
         <!-- Champ numérique pour la quantité de l'ingrédient -->

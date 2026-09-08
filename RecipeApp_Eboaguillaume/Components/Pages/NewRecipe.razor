@@ -1,20 +1,21 @@
 ﻿@page "/recipes/new"
 @page "/recipes/edit/{Id:int}"
+@rendermode InteractiveServer
 @inject RecipeApp_Eboaguillaume.Services.IRecipeService RecipeService
 @inject NavigationManager Navigation
 @inject Radzen.NotificationService Notify
 @inject IChatGptService ChatGptService
 
 <PageTitle>@(IsNew ? "New Recipe" : $"Edit {model.Title}")</PageTitle>
-// Formulaire pour créer ou éditer une recette
+@* Formulaire pour créer ou éditer une recette *@
 <RadzenCard>
-    // Notification pour les messages utilisateur
+    @* Notification pour les messages utilisateur *@
     <RadzenNotification />
-    // Formulaire d'édition de la recette
+    @* Formulaire d'édition de la recette *@
     <EditForm Model="@model" OnValidSubmit="Save">
-        // Validation des champs du formulaire
+        @* Validation des champs du formulaire *@
         <DataAnnotationsValidator />
-        // Contenu du formulaire
+        @* Contenu du formulaire *@
         <RadzenStack Gap="1.5rem">
             <RadzenFieldset Text="Basic Information">
                 <RadzenStack Gap="1rem">
@@ -45,7 +46,7 @@
                     </RadzenRow>
                 </RadzenStack>
             </RadzenFieldset>
-            // Section des tags
+            @* Section des tags *@
             <RadzenFieldset Text="Tags">
                 <RadzenStack Gap="1rem">
                     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" Gap="0.5rem" Wrap="FlexWrap.Wrap">
@@ -65,7 +66,7 @@
                     </RadzenStack>
                 </RadzenStack>
             </RadzenFieldset>
-            // Section des ingrédients
+            @* Section des ingrédients *@
             <RadzenFieldset Text="Ingredients">
                 <RadzenStack Gap="1rem">
                     @if (model.Ingredients.Any())
@@ -84,15 +85,15 @@
 
                 </RadzenStack>
             </RadzenFieldset>
-            // Section des étapes de préparation
+            @* Section des étapes de préparation *@
             <RadzenFieldset Text="Steps">
                 <RadzenStack Gap="1rem">
                     @if (model.Steps.Any())
                     {
-                        <ol class="list-decimal pl-5">
+                        <ol>
                             @foreach (var s in model.Steps.OrderBy(s => s.Order))
                             {
-                                <li class="flex gap-2 items-start mb-2">
+                                <li class="d-flex gap-2 align-items-start mb-2">
                                     <RadzenTextArea @bind-Value="s.Text" Rows="2" Style="width: 100%" />
                                     <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small"
                                                   Click="@(() => RemoveStep(s))" />
@@ -107,15 +108,18 @@
                     <RadzenButton Icon="add" Text="Add Step" Click="AddStep" ButtonStyle="ButtonStyle.Success" />
                 </RadzenStack>
             </RadzenFieldset>
-            // Boutons d'action
+            @* Boutons d'action *@
             <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="1rem" class="mt-4">
-            // Bouton pour générer avec ChatGPT
-                <RadzenButton Text="Générer avec ChatGPT"
+                @* Bouton pour générer avec ChatGPT *@
+                <RadzenButton Text="@(isGenerating ? "Génération en cours..." : "Générer avec ChatGPT")"
                                   Icon="smart_toy"
+                                  IsBusy="isGenerating"
+                                  Disabled="isGenerating"
                                   Click="GenerateWithAi"
                                   ButtonStyle="ButtonStyle.Primary" />
                 <RadzenButton Icon="save" Text="Save"
                               ButtonType="ButtonType.Submit"
+                              Disabled="isGenerating"
                               ButtonStyle="ButtonStyle.Primary" />
                 <RadzenButton Icon="cancel" Text="Cancel" ButtonStyle="ButtonStyle.Light"
                               Click="@(() => Navigation.NavigateTo("/"))" />
@@ -217,14 +221,11 @@
         Navigation.NavigateTo("/recipes");
     }
 
-	// Code pour l'implementation de la génération AI
+    // Code pour l'implementation de la génération AI
 
     private List<string> shoppingList = new();
     private bool isGenerating = false;
     private Random _random = new Random();
-
-
-    // code pour générer des suggestions avec ChatGPT 
 
     private async Task GenerateWithAi()
     {

@@ -13,3 +13,10 @@ obj/
 ## OS
 .DS_Store
 Thumbs.db
+
+## Secrets locaux (jamais committer de vrais identifiants)
+appsettings.*.local.json
+*.pfx
+.env
+.env.*
+!.env.example

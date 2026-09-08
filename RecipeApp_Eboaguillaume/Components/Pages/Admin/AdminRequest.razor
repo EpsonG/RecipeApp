@@ -1,4 +1,6 @@
 @page "/admin/requests"
+@rendermode InteractiveServer
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
 @inject RecipeApp_Eboaguillaume.Services.MySqlRequestService MySqlRequestService
 @inject RecipeApp_Eboaguillaume.Services.IRecipeService RecipeService
 
@@ -13,7 +15,7 @@
             <RadzenDataGridColumn Property="RequestedOn" Title="Date" />
             <RadzenDataGridColumn Title="Recette">
                 <Template Context="r">
-                    @RecipeService.Get(r.RecipeId)?.Title
+                    @(recipeTitlesById.TryGetValue(r.RecipeId, out var title) ? title : "")
                 </Template>
             </RadzenDataGridColumn>
         </Columns>
@@ -22,10 +24,12 @@
 
 @code {
     List<RecipeApp_Eboaguillaume.Models.RecipeRequest> requests = new();
+    Dictionary<int, string> recipeTitlesById = new();
 
     protected override void OnInitialized()
     {
         requests = MySqlRequestService.GetAll();
+        recipeTitlesById = RecipeService.GetAll().ToDictionary(r => r.Id, r => r.Title);
     }
 }
 

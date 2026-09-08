@@ -10,7 +10,7 @@
     <!-- Liens vers les feuilles de style CSS. -->
     <link rel="stylesheet" href="@Assets["lib/bootstrap/dist/css/bootstrap.min.css"]" />
     <link rel="stylesheet" href="@Assets["app.css"]" />
-    <link rel="stylesheet" href="@Assets["Laboratoire1.styles.css"]" />
+    <link rel="stylesheet" href="@Assets["RecipeApp_Eboaguillaume.styles.css"]" />
     <ImportMap />
     <link rel="icon" type="image/png" href="favicon.png" />
     <!-- HeadOutlet est un emplacement où les pages peuvent injecter du contenu dans la balise <head> (ex: titres de page). -->
@@ -21,10 +21,11 @@
 
 <body>
     <!-- Le composant Routes gère le routage côté client. InteractiveServer spécifie le mode de rendu. -->
-    <Routes @rendermode="InteractiveServer"/>
+    <Routes />
     <!-- Scripts JavaScript nécessaires pour Blazor et les composants Radzen. -->
     <script src="_framework/blazor.web.js"></script>
     <script src="_content/Radzen.Blazor/Radzen.Blazor.js?v=@(typeof(Radzen.Colors).Assembly.GetName().Version)"></script>
+    <script src="js/landing.js"></script>
 
 </body>
 

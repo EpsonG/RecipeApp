@@ -1,0 +1,14 @@
+@inject NavigationManager Navigation
+
+@code {
+    [Parameter]
+    public string? ReturnUrl { get; set; }
+
+    protected override void OnInitialized()
+    {
+        var target = string.IsNullOrEmpty(ReturnUrl)
+            ? "/Account/Login"
+            : $"/Account/Login?returnUrl={Uri.EscapeDataString(ReturnUrl)}";
+        Navigation.NavigateTo(target, forceLoad: true);
+    }
+}

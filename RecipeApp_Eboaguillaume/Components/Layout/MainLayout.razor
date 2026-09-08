@@ -1,6 +1,8 @@
 ﻿@using Radzen
 @using Radzen.Blazor
+@using Microsoft.AspNetCore.Components.Authorization
 @inherits LayoutComponentBase
+@inject NavigationManager Navigation
 
 @* Layout principal de l'application.
    - Utilise les composants Radzen pour construire une sidebar
@@ -8,9 +10,24 @@
    - Le placeholder `@Body` rendra le contenu des pages enfants. *@
 <RadzenLayout>
     <RadzenHeader>
-        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem">
-            <RadzenSidebarToggle Click="@(() => sidebar1Expanded = !sidebar1Expanded)" />
-            <RadzenText Text="Recipe App" TextStyle="TextStyle.H5" TagName="TagName.H1" class="rz-color-white" />
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Gap="1rem" class="w-100">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem">
+                <RadzenSidebarToggle Click="@(() => sidebar1Expanded = !sidebar1Expanded)" />
+                <RadzenText Text="Recipe App" TextStyle="TextStyle.H5" TagName="TagName.H1" class="rz-color-white" />
+            </RadzenStack>
+            <AuthorizeView>
+                <Authorized>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.75rem" class="me-3">
+                        <RadzenText Text="@context.User.Identity?.Name" class="rz-color-white" Style="opacity:.85" />
+                        <RadzenButton Text="Déconnexion" Icon="logout" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
+                                      Click="@(() => Navigation.NavigateTo("/Account/Logout", forceLoad: true))" />
+                    </RadzenStack>
+                </Authorized>
+                <NotAuthorized>
+                    <RadzenButton Text="Connexion" Icon="login" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" class="me-3"
+                                  Click="@(() => Navigation.NavigateTo("/Account/Login"))" />
+                </NotAuthorized>
+            </AuthorizeView>
         </RadzenStack>
     </RadzenHeader>
     <RadzenSidebar @bind-Expanded="@sidebar1Expanded">

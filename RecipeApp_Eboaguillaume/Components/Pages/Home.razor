@@ -1,9 +1,209 @@
 @page "/"
+@rendermode InteractiveServer
+@layout RecipeApp_Eboaguillaume.Components.Layout.LandingLayout
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Recipe App</PageTitle>
 
-<h1>Recipe App</h1>
+<HeadContent>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/landing.css">
+</HeadContent>
 
-Welcome to your new app.   
-<p>Use the navigation menu to explore the app.</p>
+<div class="landing">
 
+    @* ---- Navigation ---- *@
+    <div class="landing-nav-wrap">
+        <nav class="landing-nav">
+            <div class="landing-brand">
+                <span class="landing-logo">Recipe App</span>
+                <span class="landing-badge">Nouveau</span>
+            </div>
+            <div class="landing-nav-links">
+                <a href="/recipes">Recettes</a>
+                <a href="/admin">Dashboard</a>
+                <a href="/admin/requests">Requêtes</a>
+            </div>
+            <button class="landing-nav-toggle" aria-label="Menu">&#9776;</button>
+            <button class="landing-cta" @onclick="@(() => Navigation.NavigateTo("/recipes"))">
+                <span class="landing-cta-full">Voir les recettes</span>
+                <span class="landing-cta-short">Recettes</span>
+            </button>
+        </nav>
+    </div>
+
+    @* ---- Hero ---- *@
+    <section class="landing-hero">
+        <h1 class="landing-h1">
+            Cuisinez avec vos<br />
+            <span class="landing-word-rotate" data-words="amis, famille, colocs, classe">amis</span>
+        </h1>
+        <p class="landing-subtitle">
+            Organisez vos recettes, générez des idées avec l'IA et suivez ce que
+            vos proches ont envie de cuisiner — le tout au même endroit.
+        </p>
+        <div class="landing-hero-actions">
+            <button class="landing-btn-primary" @onclick="@(() => Navigation.NavigateTo("/recipes/new"))">Créer une recette</button>
+            <button class="landing-btn-secondary" @onclick="@(() => Navigation.NavigateTo("/recipes"))">Explorer les recettes</button>
+        </div>
+
+        <div class="landing-mockups">
+            <div class="landing-floating-badge">
+                <span>📱 iPhone · 💻 Mac</span>
+                <button aria-label="Fermer">&times;</button>
+            </div>
+
+            <div class="landing-mockup-laptop">
+                <div class="landing-screen">
+                    <span class="landing-chip">Beef Tacos · 3 pers.</span>
+                    <div class="landing-chat-bubble">🌮 300 g bœuf haché, 6 tortillas, 80 g cheddar…</div>
+                    <div class="landing-chat-bubble dark">Générer les étapes avec l'IA ✨</div>
+                    <div class="landing-chat-bubble">1. Cuire le bœuf épicé · 2. Réchauffer les tortillas…</div>
+                </div>
+            </div>
+
+            <div class="landing-mockup-phone">
+                <div class="landing-screen">
+                    <span class="landing-chip">Mes recettes</span>
+                    <div class="landing-chat-bubble">🍝 Spaghetti aglio e olio</div>
+                    <div class="landing-chat-bubble">🥞 Pancakes</div>
+                    <div class="landing-chat-bubble dark">+ Nouvelle recette</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    @* ---- Cartes fonctionnalités ---- *@
+    <section class="landing-reveal">
+        <p class="landing-eyebrow">Fonctionnalités</p>
+        <h2 class="landing-h2">Tout ce qu'il faut pour cuisiner ensemble</h2>
+        <p class="landing-section-subtitle">
+            Une seule application pour créer, organiser et partager vos recettes.
+        </p>
+
+        <div class="landing-cards">
+            <div class="landing-card">
+                <div class="landing-card-icon">🍳</div>
+                <div class="landing-card-title-row"><h3>Recettes organisées</h3></div>
+                <p>Ingrédients, quantités, étapes et tags — centralisés et faciles à retrouver.</p>
+            </div>
+            <div class="landing-card">
+                <div class="landing-card-icon">✨</div>
+                <div class="landing-card-title-row"><h3>Génération par IA</h3></div>
+                <p>Laissez l'IA suggérer étapes, tags et liste de courses à partir d'un titre.</p>
+            </div>
+            <div class="landing-card">
+                <div class="landing-card-icon">📊</div>
+                <div class="landing-card-title-row"><h3>Tableau de bord</h3></div>
+                <p>Suivez les recettes les plus demandées et l'activité de vos convives.</p>
+            </div>
+            <div class="landing-card">
+                <div class="landing-card-icon">📱</div>
+                <div class="landing-card-title-row">
+                    <h3>Application mobile</h3>
+                    <span class="landing-soon">Coming soon</span>
+                </div>
+                <p>Emportez vos recettes en cuisine, même sans connexion.</p>
+            </div>
+        </div>
+    </section>
+
+    @* ---- Section alternée 1 ---- *@
+    <section class="landing-split landing-reveal">
+        <div class="landing-split-text">
+            <h2 class="landing-h2">Créez une recette en quelques clics</h2>
+            <p>
+                Un formulaire simple pour ajouter titre, ingrédients et étapes —
+                ou laissez l'assistant IA générer une première version pour vous.
+            </p>
+            <ul class="landing-split-list">
+                <li><span class="landing-check">✓</span> Ingrédients avec quantités et unités</li>
+                <li><span class="landing-check">✓</span> Étapes ordonnées et modifiables</li>
+                <li><span class="landing-check">✓</span> Tags pour retrouver vos recettes vite</li>
+            </ul>
+        </div>
+        <div class="landing-split-media">
+            <div class="landing-screen">
+                <span class="landing-chip">Nouvelle recette</span>
+                <div class="landing-chat-bubble">Titre : Ndole</div>
+                <div class="landing-chat-bubble">4 portions · épicé, camerounais</div>
+                <div class="landing-chat-bubble dark">✨ Générer avec l'IA</div>
+            </div>
+        </div>
+    </section>
+
+    @* ---- Section alternée 2 (inversée) ---- *@
+    <section class="landing-split reverse landing-reveal">
+        <div class="landing-split-text">
+            <h2 class="landing-h2">Suivez ce qui plaît à vos convives</h2>
+            <p>
+                Chaque recette consultée est enregistrée. Le tableau de bord
+                d'administration vous montre les favoris en un coup d'œil.
+            </p>
+            <ul class="landing-split-list">
+                <li><span class="landing-check">✓</span> Total de recettes et de requêtes</li>
+                <li><span class="landing-check">✓</span> Répartition des demandes par recette</li>
+                <li><span class="landing-check">✓</span> Historique des demandeurs</li>
+            </ul>
+        </div>
+        <div class="landing-split-media">
+            <div class="landing-screen">
+                <span class="landing-chip">Tableau de bord</span>
+                <div class="landing-chat-bubble">📈 5 requêtes cette semaine</div>
+                <div class="landing-chat-bubble dark">🏆 Spaghetti aglio e olio en tête</div>
+            </div>
+        </div>
+    </section>
+
+    @* ---- Signup ---- *@
+    <section class="landing-signup landing-reveal">
+        <p class="landing-eyebrow">Restons en contact</p>
+        <h2 class="landing-h2">Une idée de recette à suggérer ?</h2>
+        <p class="landing-section-subtitle">
+            Laissez votre courriel et dites-nous pour qui vous cuisinez.
+        </p>
+        <form class="landing-signup-form" @onsubmit="OnSignupSubmit">
+            <input type="email" placeholder="votre@courriel.com" @bind="signupEmail" required />
+            <input type="text" placeholder="Je veux une recette pour mon..." @bind="signupFor" />
+            <button type="submit" class="landing-cta">Rejoindre</button>
+        </form>
+        <p class="landing-signup-note">@signupNote</p>
+    </section>
+
+    @* ---- Footer ---- *@
+    <footer class="landing-footer">
+        <div class="landing-footer-inner">
+            <span>&copy; @DateTime.Now.Year Recipe App. Tous droits réservés.</span>
+            <div class="landing-footer-links">
+                <a href="#">Politique de confidentialité</a>
+                <a href="#">Conditions d'utilisation</a>
+            </div>
+        </div>
+    </footer>
+</div>
+
+@code {
+    string signupEmail = string.Empty;
+    string signupFor = string.Empty;
+    string signupNote = string.Empty;
+
+    void OnSignupSubmit()
+    {
+        signupNote = string.IsNullOrWhiteSpace(signupFor)
+            ? "Merci ! Nous vous tiendrons informé."
+            : $"Merci ! On vous prépare des idées pour {signupFor}.";
+        signupEmail = string.Empty;
+        signupFor = string.Empty;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("landingPage.init");
+        }
+    }
+}

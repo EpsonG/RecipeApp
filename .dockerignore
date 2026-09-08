@@ -1,0 +1,10 @@
+**/bin/
+**/obj/
+**/.vs/
+**/.vscode/
+**/.idea/
+**/*.user
+.git/
+.github/
+RecipeApp_Eboaguillaume.Tests/
+README.md
