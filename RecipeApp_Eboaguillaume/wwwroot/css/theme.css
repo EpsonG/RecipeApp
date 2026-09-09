@@ -76,8 +76,8 @@
 }
 
 /* Sidebar : lien actif mis en avant avec la couleur de marque */
-.rz-panel-menu .rz-navigation-item-link.rz-state-selected,
-.rz-panel-menu .rz-navigation-item-link.rz-state-selected:hover {
+.rz-panel-menu .rz-navigation-item-link.rz-navigation-item-link-active,
+.rz-panel-menu .rz-navigation-item-link.rz-navigation-item-link-active:hover {
     background-color: var(--rz-primary-lighter);
     color: var(--rz-primary-dark);
     font-weight: 600;

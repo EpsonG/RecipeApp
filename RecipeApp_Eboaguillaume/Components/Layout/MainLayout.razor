@@ -1,6 +1,7 @@
 ﻿@using Radzen
 @using Radzen.Blazor
 @using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Routing
 @inherits LayoutComponentBase
 @inject NavigationManager Navigation
 
@@ -34,8 +35,8 @@
     </RadzenHeader>
     <RadzenSidebar @bind-Expanded="@sidebar1Expanded">
         <RadzenPanelMenu>
-            <RadzenPanelMenuItem Text="Accueil" Path="/" Icon="home" />
-            <RadzenPanelMenuItem Text="Tableau de bord" Path="/admin" Icon="dashboard" />
+            <RadzenPanelMenuItem Text="Accueil" Path="/" Icon="home" Match="NavLinkMatch.All" />
+            <RadzenPanelMenuItem Text="Tableau de bord" Path="/admin" Icon="dashboard" Match="NavLinkMatch.All" />
             <RadzenPanelMenuItem Text="Recettes" Path="/recipes" Icon="restaurant_menu" />
             <RadzenPanelMenuItem Text="Requêtes" Path="/admin/requests" Icon="forum" />
         </RadzenPanelMenu>
