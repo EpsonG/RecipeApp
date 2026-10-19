@@ -1,0 +1,7 @@
+# Bloque un commit local s'il contient une clé API ou un secret.
+# Activation (une fois par machine) :  pip install pre-commit  puis  pre-commit install
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
+    hooks:
+      - id: gitleaks
